@@ -1,36 +1,29 @@
 <?php
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$database = 'vehicle_rental'; // The name of the database you created
+include('db.php');
 
-$conn = new mysqli($host, $username, $password, $database);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Collect form data
     $vehicleType = $_POST['vehicle_type'];
     $carType = $_POST['car_type'];
     $drivenDistance = $_POST['driven_distance'];
     $days = $_POST['days'];
-    $displayPrice = $days * 2000;
+    $displayPrice = $_POST['display_price'];
 
-    // Use prepared statement to prevent SQL injection
-    $sql = $conn->prepare("INSERT INTO vehicle_rental (vehicle_type, car_type, driven_distance, days, display_price)
-                           VALUES (?, ?, ?, ?, ?)");
+    // Insert data into the database
+    $sql = "INSERT INTO rental_data (vehicle_type, car_type, driven_distance, days, display_price) 
+            VALUES ('$vehicleType', '$carType', '$drivenDistance', '$days', '$displayPrice')";
 
-    $sql->bind_param("ssiii", $vehicleType, $carType, $drivenDistance, $days, $displayPrice);
-
-    if ($sql->execute()) {
-        echo "Data inserted successfully";
+    if ($conn->query($sql) === TRUE) {
+        // Data inserted successfully, set a flag to display an alert
+        $successMessage = "Data inserted successfully";
+        // Redirect to index.php with a confirmation query parameter
+        header("Location: index.php?confirmation=" . urlencode($successMessage));
+        exit();
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
-
-    $sql->close();
 }
 
+// Close the database connection
 $conn->close();
 ?>
