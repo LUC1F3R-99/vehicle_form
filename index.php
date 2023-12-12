@@ -1,18 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Rental Form</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    
 </head>
+
 <style>
-        .card {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        }
-    </style>
+    body {
+        background-color: #f4f4f4;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        margin-top: 50px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+        padding: 30px;
+    }
+
+    .card-title {
+        color: #333;
+    }
+
+    label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+    }
+
+    .btn-primary {
+        border-color: #4CAF50;
+        transition: background-color 0.3s;
+    }
+    
+    .alert {
+        margin-top: 20px;
+    }
+</style>
 <script>
         <?php
         // Check if the 'confirmation' query parameter is set
@@ -22,53 +64,58 @@
         }
         ?>
     </script>
+
 <body class="container">
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-body">
-            <h2 class="card-title mt-4 mb-4">Vehicle Rental Form</h2>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title mt-4 mb-4">Vehicle Rental Form</h2>
 
-            <form method="post" action="process_form.php" class="mb-4">
-                <div class="form-group">
-                    <label for="vehicle_type">Vehicle Type:</label>
-                    <select name="vehicle_type" id="vehicle_type" class="form-control" onchange="updateCarOptions()" required>
-                        <option value="" disabled selected>Choose the vehicle you want</option>
-                        <option value="Motorcycles">Motorcycles</option>
-                        <option value="Vans">Vans</option>
-                        <option value="SUVs">SUVs</option>
-                        <option value="Trucks">Trucks</option>
-                        <option value="Cars">Cars</option>
-                    </select>
+                <form method="post" action="process_form.php" class="mb-4" onsubmit="return validateForm()">
+                    <div class="form-group">
+                        <label for="vehicle_type">Vehicle Type:</label>
+                        <select name="vehicle_type" id="vehicle_type" class="form-control" onchange="updateCarOptions()" required>
+                            <option value="" disabled selected>Choose the vehicle you want</option>
+                            <option value="Motorcycles">Motorcycles</option>
+                            <option value="Vans">Vans</option>
+                            <option value="SUVs">SUVs</option>
+                            <option value="Trucks">Trucks</option>
+                            <option value="Cars">Cars</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="car_type">Car Type:</label>
+                        <select name="car_type" id="car_type" class="form-control" required>
+                            <option value="" disabled selected>First choose the vehicle</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="driven_distance">Driven Distance (in km):</label>
+                        <input type="number" name="driven_distance" id="driven_distance" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="days">Number of Days:</label>
+                        <input type="number" name="days" id="days" class="form-control" oninput="calculatePrice()" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="display_price">Display Price:</label>
+                        <input type="text" name="display_price" id="display_price" class="form-control" readonly>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+
+                <div id="alert" class="alert alert-danger" style="display:none;">
+                    Please complete all required fields.
                 </div>
-
-                <div class="form-group">
-                    <label for="car_type">Car Type:</label>
-                    <select name="car_type" id="car_type" class="form-control" required>
-                        <!-- Car options will be dynamically updated using JavaScript -->
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="driven_distance">Driven Distance (in km):</label>
-                    <input type="number" name="driven_distance" id="driven_distance" class="form-control" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="days">Number of Days:</label>
-                    <input type="number" name="days" id="days" class="form-control" oninput="calculatePrice()" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="display_price">Display Price:</label>
-                    <input type="text" name="display_price" id="display_price" class="form-control" readonly>
-                </div>
-
-                <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
-            </form>
+            </div>
         </div>
     </div>
-</div>
 
     <script>
         function updateCarOptions() {
@@ -110,38 +157,26 @@
             displayPrice.value = days * pricePerDay;
         }
 
-        function submitForm() {
-            // Perform form validation if needed
+        function validateForm() {
+            const vehicleType = document.getElementById('vehicle_type').value;
+            const carType = document.getElementById('car_type').value;
+            const drivenDistance = document.getElementById('driven_distance').value;
+            const days = document.getElementById('days').value;
 
-            // Show a Bootstrap modal
-            $('#myModal').modal('show');
+            if (!vehicleType || !carType || !drivenDistance || !days) {
+                document.getElementById('alert').style.display = 'block';
+                return false;
+            } else {
+                document.getElementById('alert').style.display = 'none';
+                return true;
+            }
         }
     </script>
-
-    <!-- Bootstrap Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Form Submitted</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Form submitted! Data will be sent to the server.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
 </html>
